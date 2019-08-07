@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Logistic Regression</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="pandoc.css">
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+  <script type="text/javascript" async
+      src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script>
+  <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$']]}});
+  </script>
+</head>
+<body>
+<header>
+<h1 class="title">Logistic Regression</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#maximum-likelihood-estimation">Maximum Likelihood Estimation</a></li>
+<li><a href="#cross-entropy">Cross-Entropy</a><ul>
+<li><a href="#cross-entropy-error-function-and-logistic-regression">Cross-entropy error function and logistic regression</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="maximum-likelihood-estimation">Maximum Likelihood Estimation</h1>
+<ul>
+<li><a href="http://czep.net/stat/mlelr.pdf">Source</a></li>
+</ul>
+<p>Consider the following dataset:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Z</th>
+<th>a</th>
+<th>b</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>0</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><em>Z</em> : random variable with possible outcomes 1 and 0</li>
+<li>total sample size: <em>M</em> = 6</li>
+<li><span class="math inline"><em>Z</em><sub><em>i</em></sub></span> : binomial random variables where 1 indicates success</li>
+<li><span class="math inline">$\mathbf Z = (Z_1, \ldots, Z_6)$</span></li>
+<li><em>N</em> = 3 populations = (0,1), (0,0), (1,1)
+<ul>
+<li>distinct combinations of values of the independent variables</li>
+</ul></li>
+<li>number of observations for each population: <em>n</em> = (2, 2, 2)</li>
+<li><span class="math inline"><em>Y</em><sub><em>i</em></sub></span> : random variable representing number of successes of <em>Z</em> for population <em>i</em></li>
+<li><span class="math inline"><em>y</em><sub><em>i</em></sub></span> : number of observed successes for population <em>i</em></li>
+<li><strong><em>y</em></strong> = (0, 1, 1)</li>
+<li>probability of success for any given observation in <em>i</em>th population: <span class="math inline"><em>π</em><sub><em>i</em></sub> = <em>P</em>(<em>Z</em><sub><em>i</em></sub> = 1|<em>i</em>)</span></li>
+<li><span class="math inline">$\mathbf \pi = (\pi_1, \pi_2, \pi_3)$</span></li>
+</ul>
+<p>Design matrix <strong>X</strong>:</p>
+<table>
+<thead>
+<tr class="header">
+<th>x0</th>
+<th>x1</th>
+<th>x2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>number of independent variables: <em>K</em> = 2</li>
+<li>parameters: <span class="math inline"><em>β</em> = (<em>β</em><sub>0</sub>, <em>β</em><sub>1</sub>, <em>β</em><sub>2</sub>)</span></li>
+</ul>
+<p>Equations to solve: <br /><span class="math display">$$
+  \log\left(\frac{\pi_i}{1 - \pi_i}\right)=(x_{i0}, x_{i1}, x_{i2}) \cdot \beta, \quad i = 1,\ldots, N
+$$</span><br /></p>
+<p>Joint probability density function of dependent variable <em>Y</em>:</p>
+<ul>
+<li><span class="math inline"><em>P</em>(<em>Y</em> = <em>y</em>)=<em>P</em>(<em>Y</em><sub>1</sub> = <em>y</em><sub>1</sub>)⋅…⋅<em>P</em>(<em>Y</em><sub><em>N</em></sub> = <em>y</em><sub><em>N</em></sub>)</span></li>
+<li><span class="math inline"><em>Y</em><sub><em>i</em></sub> ∼ <em>B</em><em>i</em><em>n</em><em>o</em><em>m</em><em>i</em><em>a</em><em>l</em>(<em>n</em><sub><em>i</em></sub>, <em>π</em><sub><em>i</em></sub>)</span></li>
+</ul>
+<p><br /><span class="math display">$$
+  f(y | \beta) = \prod_{i=1}^N \binom{n_i}{y_i}\pi_i^{y_i}(1 - \pi_i)^{n_i - y_i}
+$$</span><br /></p>
+<ul>
+<li>Note, that there is no <span class="math inline"><em>β</em></span> in <span class="math inline"><em>f</em></span> but it indirectly defines <span class="math inline"><em>π</em></span>.</li>
+<li><p>Likelihood function: <span class="math inline"><em>L</em>(<em>β</em>|<em>y</em>)=<em>f</em>(<em>y</em>|<em>β</em>)</span></p></li>
+<li><p><span class="math inline"><em>β</em><sub>max</sub></span> : set of parameters for which the probability of the observed data is greatest <br /><span class="math display">$$ \beta_\max = \underset \beta {\operatorname{argmax}} L(\beta | y)$$</span><br /></p></li>
+</ul>
+<h1 id="cross-entropy">Cross-Entropy</h1>
+<p>The cross entropy for the distributions <em>p</em> and <em>q</em> over a given set is defined as <span class="math inline">$H(p, q) = \mathbb E_p[-\log q]$</span>.</p>
+<ul>
+<li>Discrete case: <span class="math inline">−∑<sub><em>x</em></sub>log<em>q</em>(<em>x</em>) <em>p</em>(<em>x</em>)</span></li>
+<li>Continuous case: see <a href="https://en.wikipedia.org/wiki/Cross_entropy">wikipedia</a></li>
+</ul>
+<h2 id="cross-entropy-error-function-and-logistic-regression">Cross-entropy error function and logistic regression</h2>
+<p>See <a href="https://en.wikipedia.org/wiki/Cross_entropy#Cross-entropy_error_function_and_logistic_regression">wikipedia</a>. With the <em>logistic function</em> <span class="math inline">$g(z) = \frac 1 {1 + e^{-z}}$</span> and <span class="math inline"><em>y</em> ∈ {0, 1}</span> the probability of finding <span class="math inline"><em>y</em> = 1</span> is given by: <br /><span class="math display">$$
+  q_{y = 1} = \hat y \equiv g(\mathbf w \cdot \mathbf x)
+$$</span><br /></p>
+<p>Let <span class="math inline"><em>y</em> ∈ {0, 1}</span> be the true label and <span class="math inline">$\hat y$</span> the estimation. Having set up the notation <span class="math inline"><em>p</em> ∈ {<em>y</em>, 1 − <em>y</em>}</span> and <span class="math inline">$q\in \{\hat y, 1 - \hat y\}$</span>, we can use cross entropy to get a measure for similarity between <em>p</em> and <em>q</em>: <br /><span class="math display">$$
+  H(p,q)\ = -\sum_i p_i \log q_i = -y \log \hat y - (1 - y) \log(1- \hat y)
+$$</span><br /></p>
+<p>The typical loss function that one uses in logistic regression is computed by taking the average of all cross-entropies in the sample: <br /><span class="math display">$$
+  L(\mathbf w) = \frac 1 N \sum_{n=1}^{N} H(p_{n},q_{n})
+$$</span><br /></p>
+<p>The <em>logistic loss</em> is sometimes called <em>cross-entropy loss</em>. It is also known as <em>log loss</em>.</p>
+<h3 id="further-reading">Further reading</h3>
+<ul>
+<li><a href="https://math.stackexchange.com/a/1672834">How is logistic loss and cross-entropy related?</a></li>
+<li><a href="https://stats.stackexchange.com/q/29038">Regression for a ratio or fraction between 0 and 1</a></li>
+<li><a href="https://jamesmccaffrey.wordpress.com/2013/11/05/why-you-should-use-cross-entropy-error-instead-of-classification-error-or-mean-squared-error-for-neural-network-classifier-training/">cross-entropy error vs classification error vs mean squared error</a></li>
+<li><a href="https://www.quora.com/Whats-an-intuitive-way-to-think-of-cross-entropy">What's an intuitive way to think of cross entropy?</a></li>
+</ul>
+</body>
+</html>
